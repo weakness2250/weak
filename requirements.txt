@@ -1,0 +1,3 @@
+# Совместимость OpenCV в pioneer-sdk: при ошибках импорта cv2 зафиксируйте numpy 1.x
+numpy>=1.26,<2
+pioneer-sdk>=0.6.0
