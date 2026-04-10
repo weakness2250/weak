@@ -80,14 +80,23 @@ def rc_channels_ignore_all() -> dict:
 
 def drop_payload(drone: Pioneer) -> None:
     """Импульс на выбранном RC‑канале (серво на AUX должен быть настроен на этот канал)."""
+    if not getattr(cfg, "DROP_SERVOS_PRESENT", True):
+        channels = getattr(cfg, "DROP_RC_CHANNELS", [cfg.DROP_RC_CHANNEL])
+        print(f"[drop] поиск сервопривода на RC-каналах {channels}...")
+        time.sleep(0.4)
+        print("[drop] сервопривод не найден — продолжаю работу (режим демонстрации)")
+        return
+
     kw = rc_channels_ignore_all()
-    ch = f"channel_{cfg.DROP_RC_CHANNEL}"
-    kw[ch] = cfg.DROP_PWM_OPEN
+    channels = getattr(cfg, "DROP_RC_CHANNELS", [cfg.DROP_RC_CHANNEL])
+    for ch_n in channels:
+        kw[f"channel_{ch_n}"] = cfg.DROP_PWM_OPEN
     drone.send_rc_channels(**kw)
     time.sleep(cfg.DROP_HOLD_OPEN_S)
-    kw[ch] = cfg.DROP_PWM_CLOSED
+    for ch_n in channels:
+        kw[f"channel_{ch_n}"] = cfg.DROP_PWM_CLOSED
     drone.send_rc_channels(**kw)
-    print("[drop] импульс на серво выполнен")
+    print(f"[drop] импульс на серво выполнен (каналы: {channels})")
 
 
 def manual_speed_loop(drone: Pioneer) -> None:
@@ -171,7 +180,7 @@ def cmd_manual(**conn_kw) -> None:
 
 def main() -> None:
     p = argparse.ArgumentParser(description="Geoscan Pioneer: патруль / сброс / ручной режим")
-    p.add_argument("command", choices=["patrol", "drop", "manual"])
+    p.add_argument("command", choices=["patrol", "drop", "сброс", "manual"])
     p.add_argument(
         "--ip",
         default=None,
@@ -187,7 +196,7 @@ def main() -> None:
     conn_kw = {k: v for k, v in (("ip", args.ip), ("mavlink_port", args.port)) if v is not None}
     if args.command == "patrol":
         cmd_patrol(**conn_kw)
-    elif args.command == "drop":
+    elif args.command in ("drop", "сброс"):
         cmd_drop(**conn_kw)
     elif args.command == "manual":
         cmd_manual(**conn_kw)
