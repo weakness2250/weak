@@ -1,5 +1,7 @@
 """Параметры полёта и сброса — подстройте под площадку и схему подключения сервоприводов."""
 
+from pathlib import Path
+
 # Сеть по умолчанию: Wi‑Fi точка доступа Pioneer.
 # Для «Геоскан Симулятор» на том же компьютере зачастую указывают 127.0.0.1 —
 # точный IP/порт смотрите в руководстве по эксплуатации симулятора (MAVLink / внешнее управление).
@@ -15,8 +17,30 @@ PATROL_CORNERS_METERS = [
     (5.0, 4.0, PATROL_HEIGHT, 0.0),
     (0.0, 4.0, PATROL_HEIGHT, 0.0),
 ]
-PATROL_LOOPS = 2
+# 0 — патрулировать без ограничения числа циклов (останов скрипта — Ctrl+C)
+PATROL_LOOPS = 0
 POINT_REACHED_POLL_S = 0.1
+
+# Точка возврата после реагирования на огонь (локальная СК ENU, как у PATROL_CORNERS_METERS)
+HOME_XYZ_YAW_METERS = (0.0, 0.0, PATROL_HEIGHT, 0.0)
+
+# YOLO из C:\Users\ПП\image_validator (fire_detector.py)
+IMAGE_VALIDATOR_DIR = Path(r"C:\Users\ПП\image_validator")
+FIRE_MODEL_PATH = IMAGE_VALIDATOR_DIR / "fire_models" / "train" / "weights" / "best.pt"
+FIRE_CONFIDENCE = 0.25
+
+CAMERA_PORT = 8888
+CAMERA_LOG_CONNECTION = False
+RPI_START_CAPTURE_ON_MISSION = True
+RPI_CAPTURE_INTERVAL_S = 0.15
+
+VISION_CYCLE_S = 0.2
+FIRE_COOLDOWN_S = 12.0
+
+APPROACH_STEP_FORWARD_M = 0.35
+APPROACH_STEP_SIDE_M = 0.25
+APPROACH_MAX_STEPS = 28
+APPROACH_MIN_BOX_AREA_FRAC = 0.12
 
 # Сброс: свободный RC‑канал/каналы, см. назначение AUX в документации и настройку приёмника.
 # Значения типичные для PWM микросекунд / RC (уточните по конфигурации полётника).
